@@ -1,4 +1,8 @@
-# Quarterdeck
+<p align="center">
+  <img src="public/icon-readme.png" alt="Quarterdeck icon" width="280" />
+  <br />
+  <strong>Quarterdeck</strong>
+</p>
 
 Simple host-based web UI for managing Docker Compose stacks.
 
