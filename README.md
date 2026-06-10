@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/icon-readme.png" alt="Quarterdeck icon" width="280" />
+  <img src="public/icon.png" alt="Quarterdeck icon" width="280" />
   <br />
   <strong>Quarterdeck</strong>
 </p>
