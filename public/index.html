@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quarterdeck</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="background-glow glow-a"></div>
+    <div class="background-glow glow-b"></div>
+
+    <main class="app-shell">
+      <header class="top-bar">
+        <div class="title-wrap">
+          <h1>Quarterdeck</h1>
+        </div>
+        <div class="header-actions">
+          <div id="appSessionInfo" class="auth-info"></div>
+          <button id="appLogoutBtn" class="btn btn-ghost" type="button">Sign Out</button>
+          <div id="dockerAuthInfo" class="auth-info"></div>
+          <button id="refreshBtn" class="btn btn-ghost">Refresh</button>
+          <button id="checkUpdatesBtn" class="btn btn-ghost">Check Updates</button>
+          <button id="dockerLoginBtn" class="btn btn-ghost">Docker Login</button>
+          <button id="dockerLogoutBtn" class="btn btn-ghost">Docker Logout</button>
+          <button id="updateAllBtn" class="btn btn-primary">Update All</button>
+        </div>
+      </header>
+
+      <nav class="tab-nav panel" aria-label="Main Sections">
+        <button id="tabDirectories" class="tab-btn active" type="button" data-tab="directories">
+          Directories
+        </button>
+        <button id="tabEntries" class="tab-btn" type="button" data-tab="entries">Entries</button>
+        <button id="tabPorts" class="tab-btn" type="button" data-tab="ports">Ports</button>
+        <button id="tabSystemd" class="tab-btn" type="button" data-tab="systemd">Systemd</button>
+      </nav>
+
+
+      <section id="authGate" class="auth-gate hidden" aria-hidden="true">
+        <div class="auth-card panel">
+          <h2>Sign In</h2>
+          <p class="auth-copy">Enter the app password from your `.env` file to access this host.</p>
+          <form id="authForm" class="auth-form">
+            <label for="authPasswordInput">Password</label>
+            <input id="authPasswordInput" type="password" autocomplete="current-password" />
+            <label class="auth-checkbox">
+              <input id="authRememberInput" type="checkbox" />
+              <span>Remember this browser</span>
+            </label>
+            <button id="authSubmitBtn" class="btn btn-primary" type="submit">Unlock</button>
+          </form>
+          <div id="authMessage" class="auth-message"></div>
+        </div>
+      </section>
+      <section id="tabPanelDirectories" class="panel tab-panel active">
+        <div class="panel-head">
+          <h2>Manage Directories</h2>
+        </div>
+
+        <div class="directories-grid">
+          <section class="sub-panel">
+            <h3>Link Compose Directory</h3>
+          <form id="linkForm" class="link-form">
+            <label for="dirPathInput">Directory Path</label>
+            <input
+              id="dirPathInput"
+              name="dirPath"
+              type="text"
+              placeholder="/your/path/here"
+              autocomplete="off"
+            />
+            <div class="link-form-actions">
+              <button type="submit" class="btn btn-secondary">Add Directory</button>
+              <button type="button" id="scanBtn" class="btn btn-ghost">Scan Subfolders</button>
+            </div>
+          </form>
+          </section>
+
+          <section class="sub-panel">
+            <h3>Linked Directories</h3>
+            <ul id="directoryList" class="directory-list"></ul>
+          </section>
+        </div>
+      </section>
+
+      <section id="tabPanelEntries" class="panel tab-panel">
+        <div class="panel-head">
+          <h2>Compose Entries</h2>
+        </div>
+        <section class="sub-panel">
+          <div class="entries-tools">
+            <input
+              id="entriesSearchInput"
+              type="text"
+              placeholder="Search directories or services..."
+              autocomplete="off"
+            />
+            <button id="importEntriesBtn" class="btn btn-ghost" type="button">Import Compose</button>
+            <label class="inline-toggle" title="Enable auto update for all linked compose stacks">
+              <input id="autoUpdateAllToggle" type="checkbox" />
+              <span>Auto update all</span>
+            </label>
+            <div id="entriesCount" class="entries-count"></div>
+          </div>
+          <div id="stackContainer" class="stack-container"></div>
+        </section>
+      </section>
+
+      <section id="tabPanelPorts" class="panel tab-panel">
+        <div class="panel-head">
+          <h2>Ports</h2>
+        </div>
+        <section class="sub-panel">
+          <div class="entries-tools">
+            <input
+              id="portsSearchInput"
+              type="text"
+              placeholder="Search host port, directory, or service..."
+              autocomplete="off"
+            />
+            <div id="portsCount" class="entries-count"></div>
+          </div>
+          <div id="portsContainer" class="ports-container"></div>
+        </section>
+      </section>
+
+      <section id="tabPanelSystemd" class="panel tab-panel">
+        <div class="panel-head">
+          <h2>Systemd Services</h2>
+        </div>
+        <section class="sub-panel">
+          <div class="entries-tools">
+            <input
+              id="systemdSearchInput"
+              type="text"
+              placeholder="Search service name, status, or description..."
+              autocomplete="off"
+            />
+            <div id="systemdCount" class="entries-count"></div>
+          </div>
+          <div id="systemdContainer" class="systemd-container"></div>
+        </section>
+      </section>
+
+      <section class="panel">
+        <div class="content-header">
+          <h2>Action Output</h2>
+          <div id="jobProgress" class="job-progress"></div>
+          <button id="clearOutputBtn" class="btn btn-ghost">Clear</button>
+        </div>
+        <pre id="actionOutput" class="action-output">Ready.</pre>
+      </section>
+
+      <section id="loginModal" class="modal hidden" aria-hidden="true">
+        <div class="modal-backdrop" id="loginModalBackdrop"></div>
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+          <div class="modal-head">
+            <h3 id="loginModalTitle">Docker Web Login</h3>
+            <button
+              id="loginModalCloseBtn"
+              class="btn btn-mini btn-ghost"
+              type="button"
+              data-allow-busy="true"
+            >
+              Close
+            </button>
+          </div>
+
+          <div class="modal-status-wrap">
+            <div id="loginModalStatusIcon" class="modal-status-icon pending"></div>
+            <div>
+              <div id="loginModalStatusText" class="modal-status-text">Waiting for device flow...</div>
+              <div id="loginModalHint" class="modal-hint">
+                If a confirmation code appears, use it at the activation link below.
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-grid">
+            <div class="modal-kv">
+              <span>Device Code</span>
+              <div class="copy-row">
+                <code id="loginDeviceCode">-</code>
+                <button
+                  id="copyDeviceCodeBtn"
+                  class="btn btn-mini btn-ghost"
+                  type="button"
+                  data-allow-busy="true"
+                  title="Copy device code"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+            <div class="modal-kv">
+              <span>Activation URL</span>
+              <a id="loginActivationUrl" href="https://login.docker.com/activate" target="_blank" rel="noreferrer">
+                https://login.docker.com/activate
+              </a>
+            </div>
+          </div>
+
+          <pre id="loginModalLog" class="modal-log">Starting...</pre>
+        </div>
+      </section>
+
+      <section id="importComposeModal" class="modal hidden" aria-hidden="true">
+        <div class="modal-backdrop" id="importComposeModalBackdrop"></div>
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="importComposeModalTitle">
+          <div class="modal-head">
+            <h3 id="importComposeModalTitle">Import Compose File</h3>
+            <button id="importComposeModalCloseBtn" class="btn btn-mini btn-ghost" type="button">Close</button>
+          </div>
+          <form id="importComposeForm" class="link-form">
+            <label for="sourceComposeFileInput">Browse Local Compose File</label>
+            <input
+              id="sourceComposeFileInput"
+              name="sourceComposeFile"
+              type="file"
+              accept=".yml,.yaml,text/yaml,application/x-yaml,text/plain"
+            />
+
+            <label for="sourceComposePathInput">Source Compose File Path</label>
+            <input
+              id="sourceComposePathInput"
+              name="sourceComposePath"
+              type="text"
+              placeholder="/path/to/docker-compose.yml"
+              autocomplete="off"
+            />
+            <div id="sourceComposeFileHint" class="auth-info">Choose a local file above, or enter a server path.</div>
+
+            <label for="targetComposeDirInput">Target Directory</label>
+            <input
+              id="targetComposeDirInput"
+              name="targetComposeDir"
+              type="text"
+              list="importTargetDirOptions"
+              placeholder="/path/to/target/stack"
+              autocomplete="off"
+            />
+            <datalist id="importTargetDirOptions"></datalist>
+
+            <label for="importModeSelect">Import Mode</label>
+            <select id="importModeSelect" name="importMode">
+              <option value="merge">Merge into existing compose</option>
+              <option value="new">New/replace compose file</option>
+            </select>
+
+            <label class="auth-checkbox">
+              <input id="importOverwriteInput" type="checkbox" />
+              <span>Overwrite on conflicts (services/file)</span>
+            </label>
+
+            <label class="auth-checkbox">
+              <input id="importLinkInput" type="checkbox" checked />
+              <span>Link target directory after import</span>
+            </label>
+
+            <div class="link-form-actions">
+              <button type="submit" class="btn btn-secondary">Import Compose</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section id="composeServiceModal" class="modal hidden" aria-hidden="true">
+        <div class="modal-backdrop" id="composeServiceModalBackdrop"></div>
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="composeServiceModalTitle">
+          <div class="modal-head">
+            <h3 id="composeServiceModalTitle">Add Services to Compose</h3>
+            <button id="composeServiceModalCloseBtn" class="btn btn-mini btn-ghost" type="button">Close</button>
+          </div>
+          <form id="composeServiceForm" class="link-form">
+            <label for="composeEditorStackSelect">Linked Stack</label>
+            <select id="composeEditorStackSelect" name="composeEditorStack"></select>
+
+            <label for="composeServiceYamlInput">Service YAML Snippet</label>
+            <textarea
+              id="composeServiceYamlInput"
+              name="composeServiceYaml"
+              rows="10"
+              placeholder="web:\n  image: nginx:latest\n  ports:\n    - \"8080:80\""
+            ></textarea>
+
+            <label class="auth-checkbox">
+              <input id="composeServiceOverwriteInput" type="checkbox" />
+              <span>Overwrite existing services with same names</span>
+            </label>
+
+            <div class="link-form-actions">
+              <button type="submit" class="btn btn-secondary">Add Services</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <template id="serviceTemplate">
+      <details class="service-card">
+        <summary>
+          <span class="service-title"></span>
+        </summary>
+        <div class="service-actions-body">
+          <button class="btn btn-mini service-primary-btn" type="button">Start</button>
+          <button class="btn btn-mini service-restart-btn" type="button">Restart</button>
+          <button class="btn btn-mini update-service-btn" type="button">Update</button>
+          <button class="btn btn-mini service-check-btn" type="button">Check Update</button>
+          <button class="btn btn-mini btn-ghost service-remove-btn" type="button">Remove</button>
+        </div>
+        <div class="service-body"></div>
+      </details>
+    </template>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

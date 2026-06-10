@@ -1,0 +1,6 @@
+node_modules/
+data/
+.env
+.skip-systemd-prompt
+npm-debug.log*
+dist/

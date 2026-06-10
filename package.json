@@ -1,0 +1,19 @@
+{
+  "name": "quarterdeck",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Simple local web UI to view and update Compose stacks",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "smoke": "bash ./scripts/smoke-test.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "js-yaml": "^4.1.0"
+  }
+}
