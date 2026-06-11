@@ -143,16 +143,16 @@ else
 set -euo pipefail
 cd "$APP_DIR"
 
-cmd="${1:-start}"
+  cmd="\${1:-start}"
 
-case "$cmd" in
+  case "\$cmd" in
   start|run)
     shift || true
-    exec ./start.sh "$@"
+      exec ./start.sh "\$@"
     ;;
   update)
     shift || true
-    exec ./scripts/update.sh "$@"
+      exec ./scripts/update.sh "\$@"
     ;;
   help|-h|--help)
     cat <<'USAGE'
@@ -166,7 +166,7 @@ Usage:
 USAGE
     ;;
   *)
-    echo "Unknown command: $cmd"
+    echo "Unknown command: \$cmd"
     echo "Run 'quarterdeck help' for usage."
     exit 1
     ;;
