@@ -5,9 +5,28 @@ SERVICE_NAME="quarterdeck"
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 USER_NAME="${SUDO_USER:-$USER}"
 SETUP_SCRIPT="$APP_DIR/setup.sh"
-HOST="${HOST:-127.0.0.1}"
-PORT="${PORT:-3099}"
-DATA_DIR="${DATA_DIR:-$APP_DIR/data}"
+ENV_FILE="$APP_DIR/.env"
+
+read_env_value() {
+  local key="$1"
+  local value
+
+  [[ -f "$ENV_FILE" ]] || return 1
+
+  value="$(grep -E "^${key}=" "$ENV_FILE" | tail -n1 | cut -d= -f2- || true)"
+  [[ -n "$value" ]] || return 1
+
+  # Trim optional matching quotes around simple values.
+  if [[ "$value" =~ ^\".*\"$ || "$value" =~ ^\'.*\'$ ]]; then
+    value="${value:1:-1}"
+  fi
+
+  printf "%s" "$value"
+}
+
+HOST="${HOST:-$(read_env_value HOST || echo 127.0.0.1)}"
+PORT="${PORT:-$(read_env_value PORT || echo 3099)}"
+DATA_DIR="${DATA_DIR:-$(read_env_value DATA_DIR || echo "$APP_DIR/data")}"
 NODE_BIN="$(readlink -f "$(command -v node)")"
 NPM_BIN="$(readlink -f "$(command -v npm)")"
 SERVICE_PATH="/etc/systemd/system/${SERVICE_NAME}.service"

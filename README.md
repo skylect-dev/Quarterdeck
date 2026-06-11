@@ -18,6 +18,25 @@ What this does:
 - Runs `./setup.sh` (interactive)
 - Lets setup configure `.env`, install dependencies, and optionally install/update the `quarterdeck` command shim
 
+You can run the same one-line installer again later to update an existing install.
+
+## Updating
+
+Use one of these options:
+
+```bash
+quarterdeck update
+```
+
+- Pulls latest changes (`main`) and refreshes dependencies
+- If systemd service is installed, re-runs installer and restarts service
+
+Or rerun the installer:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/skylect-dev/Quarterdeck/main/scripts/quick-install.sh)
+```
+
 Optional overrides:
 
 - `QUARTERDECK_REPO_URL`

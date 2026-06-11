@@ -142,7 +142,35 @@ else
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$APP_DIR"
-exec ./start.sh
+
+cmd="${1:-start}"
+
+case "$cmd" in
+  start|run)
+    shift || true
+    exec ./start.sh "$@"
+    ;;
+  update)
+    shift || true
+    exec ./scripts/update.sh "$@"
+    ;;
+  help|-h|--help)
+    cat <<'USAGE'
+Quarterdeck command shim
+
+Usage:
+  quarterdeck           Start Quarterdeck (default)
+  quarterdeck start     Start Quarterdeck
+  quarterdeck update    Update Quarterdeck and refresh systemd service if installed
+  quarterdeck help      Show this help
+USAGE
+    ;;
+  *)
+    echo "Unknown command: $cmd"
+    echo "Run 'quarterdeck help' for usage."
+    exit 1
+    ;;
+esac
 EOF
   chmod +x "$SHIM_PATH"
 
