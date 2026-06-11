@@ -16,9 +16,14 @@ What this does:
 
 - Clones or updates Quarterdeck in `~/.local/share/quarterdeck`
 - Runs `./setup.sh` (interactive)
-- Lets setup configure `.env`, install dependencies, and optionally install/update the `quarterdeck` command shim
+- Lets setup configure `.env`, install dependencies, and install/update the `quarterdeck` command shim
 
 You can run the same one-line installer again later to update an existing install.
+
+Run with
+```bash
+quarterdeck
+```
 
 ## Updating
 
